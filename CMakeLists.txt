@@ -9,9 +9,24 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(Protobuf_USE_STATIC_LIBS ON)
+
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-find_package(Protobuf REQUIRED)
+find_package(Protobuf 6.32.1 QUIET)
+if(NOT Protobuf_FOUND)
+    message(STATUS "Protobuf library not found. Starting download and build of Protobuf 6.32.1...")
+    include(FetchContent)
+    FetchContent_Declare(
+        protobuf
+        URL "https://github.com/protocolbuffers/protobuf/releases/download/v32.1/protobuf-32.1.tar.gz"
+        URL_HASH SHA256=3feeabd077a112b56af52519bc4ece90e28b4583f4fc2549c95d765985e0fd3c
+    )
+    FetchContent_MakeAvailable(protobuf)
+    message(STATUS "Protobuf library downloaded and built successfully.")
+endif()
+
+message(STATUS "Protobuf library version: ${Protobuf_VERSION}")
 
 file(GLOB GUI_SOURCES
         "src/gui/*.cpp"
@@ -40,7 +55,7 @@ set(CLIENT_SOURCE
         "src/client.cpp"
 )
 
-set(CLIENT_SOURCE
+set(SERVER_SOURCE
         ${PROJECT_SOURCES}
         "src/server.cpp"
 )
